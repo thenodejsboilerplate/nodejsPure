@@ -1,0 +1,8 @@
+
+Partially buffered access methods are different. They do not treat data input as a discrete event, but rather as a series of events which occur as the data is being read or written. They allow us to access data as it is being read from disk/network/other I/O.
+
+Partially buffered methods, such as readSync() and read() allow us to specify the size of the buffer, and read data in small chunks. They allow for more control (e.g. reading a file in non-linear order by skipping back and forth in the file).
+
+, in most cases we only want to read/write through the data once, and in one direction (forward). Streams are an abstraction over partially buffered data access that simplify doing this kind of data processing. Streams return smaller parts of the data (using a Buffer), and trigger a callback when new data is available for processing.
+
+Streams are EventEmitters. If our 1 GB file would, for example, need to be processed in some way once, we could use a stream and process the data as soon as it is read. This is useful, since we do not need to hold all of the data in memory in some buffer: after processing, we no longer need to keep the data in memory for this kind of application.
