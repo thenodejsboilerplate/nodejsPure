@@ -4,11 +4,12 @@ var fs = require('fs');
 //Fully buffered reads and writes are fairly straightforward: call the function and pass in a String or a Buffer to write, and then check the return value.
 
 // (fully buffered)
-fs.readFile('./welcome.html', 'utf8', function(err,data){
-  console.log(`welcome.html's data is ${data}`);
+fs.readFile('../../welcome.html', 'utf8', function(err,data){
+  console.log(err?err:`welcome.html's data is ${data}`);
+
 });
 // (fully buffered)
-fs.writeFile('./results.txt', 'Hello World', function(err) {
+fs.writeFile('../../results.txt', 'Hello World', function(err) {
   if(err) throw err;
   console.log('fully buffered, File write completed');
 });
@@ -29,7 +30,14 @@ fs.writeFile('./results.txt', 'Hello World', function(err) {
 //fs.write(fd, string[, position[, encoding]], callback)
 //fs.write(fd, buffer[, offset[, length[, position]]], callback) Added in: v0.0.2
 //offset and length determine the part of the buffer to be written.position refers to the offset from the beginning of the file where this data should be written. 
-fs.open('./src/data/1.html', 'w', function(err,fd){
+let dir;
+if(require.main === module){
+  dir = '../../src/data/';
+}else{
+  dir = './src/data/';
+}
+
+fs.open(`${dir}1.html`, 'w', function(err,fd){
   if(err) throw err;
   let buf = new Buffer('bbbb\n bbb');
   fs.write(fd, buf,0,buf.length,null,function(err,written,buffer){
@@ -44,13 +52,13 @@ fs.open('./src/data/1.html', 'w', function(err,fd){
 
 // Reading a directory returns the names of the items (files, directories and others) in it.
 
-var dir = './src/data/';
+
 fs.readdir(dir, function (err, files) {
   if(err) throw err;
   files.forEach(function(file) {
     console.log(dir+file);
     fs.stat(dir+file, function(err, stats) {
-      console.log(`stats in fs.stat: ${JSON.stringify(stats,null,' ')}`);
+      console.log(err?err : `stats in fs.stat: ${JSON.stringify(stats,null,' ')}`);
 //  stats:
 //  {
 //  "dev": -1773846389,
@@ -85,12 +93,12 @@ fs.readdir(dir, function (err, files) {
 });
 
 
-fs.stat('./newdir', function(err,stats){
+fs.stat('../../newdir', function(err,stats){
   if(!stats) {
-    fs.mkdir('./newdir', '0666', function(err) {
+    fs.mkdir('../../newdir', '0666', function(err) {
       if(err) throw err;
       console.log('Created newdir');
-      fs.rmdir('./newdir', function(err) {
+      fs.rmdir('../../newdir', function(err) {
         if(err) throw err;
         console.log('Removed newdir');
       });
@@ -102,8 +110,8 @@ fs.stat('./newdir', function(err,stats){
 });
 
 
-var file = fs.createReadStream('./src/data/results.txt', {flags: 'r'} );
-var out = fs.createWriteStream('./src/data/results2.txt', {flags: 'w'});
+var file = fs.createReadStream(dir+'results.txt', {flags: 'r'} );
+var out = fs.createWriteStream(dir+'results2.txt', {flags: 'w'});
 file.pipe(out);
 //or like
 // var file = fs.createReadStream('./data/results.txt', {flags: 'r'} );
@@ -121,7 +129,7 @@ file.pipe(out);
 // });
 
 //Appending to a file
-var appendFile = fs.createWriteStream('./src/data/resultsAppend.txt', {flags: 'a'} );
+var appendFile = fs.createWriteStream(dir+'resultsAppend.txt', {flags: 'a'} );
 appendFile.write('HELLO!\n');
 appendFile.end(function() {
   console.log('append file successfully');
@@ -157,10 +165,66 @@ function findFile(path, searchFile, callback) {
   pi.iterate(path);
 }
 
-findFile('./src/data/', '1.html', function(err, path) {
+findFile(dir, '1.html', function(err, path) {
   if(err) { 
     console.log(`error: ${err.message}`);
     throw err; 
   }
   console.log('Found file at: '+path);
+});
+
+
+
+
+
+
+fs.open('../filefolder/myfile.log', 'r', (err, fd) => {
+  if (err) {
+    if (err.code === 'ENOENT') {
+
+// if(err.code === "EEXIST") {
+//       console.error('myfile already exist');
+//       return;
+// }     
+      console.error('myfile does not exist');
+      return;
+    } else {
+      throw err;
+    }
+  }
+  //readMyData(fd);
+  console.log('you can read data');
+});
+
+
+fs.appendFile(dir+'message.txt', 'data to append vv','utf8', (err) => {
+  if (err) throw err;
+  console.log('The "data to append" was appended to file!');
+});
+
+
+//Note: The fs.mkdtemp() method will append the six randomly selected characters directly to the prefix string. For instance, given a directory /tmp, if the intention is to create a temporary directory within /tmp, the prefix must end with a trailing platform-specific path separator (require('path').sep).
+// This method is *INCORRECT*:
+
+// The parent directory for the new temporary directory
+//const tmpDir = '/tmp';
+// fs.mkdtemp(tmpDir, (err, folder) => {
+//   if (err) throw err;
+//   console.log(folder);
+//   // Will print something similar to `/tmpabc123`.
+//   // Note that a new temporary directory is created
+//   // at the file system root rather than *within*
+//   // the /tmp directory.
+// });
+
+// This method is *CORRECT*:
+const path = require('path');
+console.log(`path.sep: ${path.sep}`);
+const tmpDir = `.${path.sep}newdir`;
+fs.mkdtemp(tmpDir + path.sep, (err, folder) => {
+  if (err) throw err;
+  console.log(folder);
+  // Will print something similar to `/tmp/abc123`.
+  // A new temporary directory is created within
+  // the /tmp directory.
 });

@@ -6,8 +6,6 @@ const url = require('url');
 let parsedUrl = url.parse('http://user:pass@host.com:8080/p/a/t/h?query=string#hash', true);    
 console.log('url.parse a url example ' + JSON.stringify(parsedUrl));
 
-
-
 const querystring = require('querystring');
 let parseUrl2 = querystring.parse('http://user:pass@host.com:8080/p/a/t/h?query=string#hash');
 console.log(`querystring.parse a url example : ${JSON.stringify(parseUrl2)}`);// {"http://user:pass@host.com:8080/p/a/t/h?query":"string#hash"}
