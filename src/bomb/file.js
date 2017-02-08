@@ -6,7 +6,6 @@ var fs = require('fs');
 // (fully buffered)
 fs.readFile('../../welcome.html', 'utf8', function(err,data){
   console.log(err?err:`welcome.html's data is ${data}`);
-
 });
 // (fully buffered)
 fs.writeFile('../../results.txt', 'Hello World', function(err) {
