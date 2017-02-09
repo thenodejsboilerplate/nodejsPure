@@ -31,7 +31,10 @@ setTimeout(() => {
 //fs.writeFile('./add.js','ddd', function(err,data){df});
 console.log('This will not run.');
 
-
+// process.on('SIGKILL', ()=>{
+//   console.log('Received SIGKILL. I\'ll quit');
+// });
+// process.kill(process.pid, 'SIGTERM');
 //warnings are not part of the normal Node.js and JavaScript error handling flow. Node.js can emit warnings whenever it detects bad coding practices that could lead to sub-optimal application performance, bugs or security vulnerabilities.
 
 const EventEmitter = require('events');
@@ -150,33 +153,72 @@ console.log(`
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 //Note: An easy way to send the SIGINT signal is with <Ctrl>-C in most terminal programs.
 
-process.on('SIGINT', () => {
-  console.log('Received SIGINT.  Press Control-D to exit.');
-});
-
-process.on('SIGKILL', ()=>{
-  console.log('Received SIGKILL. I\'ll quit');
-});
-
+// process.on('SIGKILL', ()=>{
+//   console.log('Received SIGKILL. I\'ll quit');
+// });
+// process.kill(process.pid, 'SIGTERM');
 
 //process.abort();The process.abort() method causes the Node.js process to exit immediately and generate a core file.
 
 
 
 
+console.log(`
+// The difference is that if the main module changes at runtime, require.main may still refer to the original main module in modules that were required before the change occurred.
+    process.mainModule: ${util.inspect(process.mainModule)},
+    require.main: ${util.inspect(require.main)},
+    require.main === proces.mainModule: ${require.main===process.mainModule}
+    filename: ${process.mainModule.filename} or ${require.main.filename}
+`);
+
+
+function byteToGb(bytes){
+  return bytes/1024/1024/1024;
+}
+function memoryUsageFilter(mu){
+  return {
+    rss: byteToGb(mu.rss),
+    heapTotal: byteToGb(mu.heapTotal),
+    heapUsed: byteToGb(mu.heapUsed)
+  };
+
+}
+console.log(
+    `
+    process.memoryUsage(): ${util.inspect(process.memoryUsage())},
+    process.memoryUsage(): ${util.inspect(memoryUsageFilter(process.memoryUsage()))}
+    `
+);
+
+
+// class Mything {
+//   constructor(options){
+//     this.key = options.key;
+//   }
+//   code(){
+//     console.log('cond');
+//   }
+//   starting(){
+//     process.nextTick(()=>{
+//       this.code();
+//     });
+//   }
+// }
+// let thing = new Mything({key: 1});
+// console.log(`
+//    thing.key: ${thing.key},
+//    thing.starting(): ${thing.starting()}
+// `);
+
+console.log(`
+  process.platform: ${process.platform},
+  process.release: ${util.inspect(process.release)},
+  process.uptime(): ${process.uptime()},
+  nodejs version string: process.version: ${process.version}
+  doejs and its dependencis version: ${util.inspect(process.versions)}
+`)
 
 
 
